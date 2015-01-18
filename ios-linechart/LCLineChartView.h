@@ -36,6 +36,7 @@ typedef void(^LCLineChartDeselectedItem)();
 
 @property BOOL drawsDataPoints;
 @property (strong) UIColor *color;
+@property (strong) UIColor *dataPointColor;
 @property (copy) NSString *title;
 @property NSUInteger itemCount;
 

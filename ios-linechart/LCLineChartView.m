@@ -305,7 +305,11 @@
                     CGFloat yVal = yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
                     [self.backgroundColor setFill];
                     //CGContextFillEllipseInRect(c, CGRectMake(xVal - pointRadius/2, yVal - pointRadius/2, pointRadius, pointRadius));
-                    [data.color setFill];
+                    if(data.dataPointColor){
+                        [data.dataPointColor setFill];
+                    }else{
+                        [data.color setFill];
+                    }
 
                     int pointRadius = 6;
                     CGContextFillEllipseInRect(c, CGRectMake(xVal - pointRadius/2, yVal - pointRadius/2, pointRadius, pointRadius));
