@@ -10,6 +10,7 @@
 
 @class LCLineChartDataItem;
 @class LCLineChartData;
+@class LCLegendView;
 
 typedef LCLineChartDataItem *(^LCLineChartDataGetter)(NSUInteger item);
 typedef void(^LCLineChartSelectedItem)(LCLineChartData * data, NSUInteger item, CGPoint positionInChart);
@@ -22,6 +23,7 @@ typedef void(^LCLineChartDeselectedItem)();
 @property (readonly) double y; /// should be within the y range
 @property (readonly) NSString *xLabel; /// label to be shown on the x axis
 @property (readonly) NSString *dataLabel; /// label to be shown directly at the data item
+@property LCLegendView *legendView;
 
 + (LCLineChartDataItem *)dataItemWithX:(double)x y:(double)y xLabel:(NSString *)xLabel dataLabel:(NSString *)dataLabel;
 
