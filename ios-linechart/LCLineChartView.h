@@ -12,6 +12,7 @@
 @class LCLineChartData;
 @class LCLegendView;
 
+
 typedef LCLineChartDataItem *(^LCLineChartDataGetter)(NSUInteger item);
 typedef void(^LCLineChartSelectedItem)(LCLineChartData * data, NSUInteger item, CGPoint positionInChart);
 typedef void(^LCLineChartDeselectedItem)();
@@ -23,7 +24,7 @@ typedef void(^LCLineChartDeselectedItem)();
 @property (readonly) double y; /// should be within the y range
 @property (readonly) NSString *xLabel; /// label to be shown on the x axis
 @property (readonly) NSString *dataLabel; /// label to be shown directly at the data item
-@property LCLegendView *legendView;
+
 
 + (LCLineChartDataItem *)dataItemWithX:(double)x y:(double)y xLabel:(NSString *)xLabel dataLabel:(NSString *)dataLabel;
 
@@ -65,6 +66,8 @@ typedef void(^LCLineChartDeselectedItem)();
 
 @property (strong) UIFont *scaleFont; /// Font in which scale markings are drawn. Defaults to [UIFont systemFontOfSize:10].
 @property (nonatomic,strong) UIColor *axisLabelColor;
+
+@property(nonatomic, strong) LCLegendView *legendView;
 
 - (void)showLegend:(BOOL)show animated:(BOOL)animated;
 
