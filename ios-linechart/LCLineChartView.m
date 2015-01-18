@@ -44,11 +44,11 @@
 @implementation LCLineChartData
 
 - (id)init {
-  self = [super init];
-  if(self) {
-    self.drawsDataPoints = YES;
-  }
-  return self;
+    self = [super init];
+    if(self) {
+        self.drawsDataPoints = YES;
+    }
+    return self;
 }
 
 @end
@@ -108,7 +108,7 @@
 
     self.drawsDataPoints = YES;
     self.drawsDataLines  = YES;
-    
+
     self.selectedIdx = INT_MAX;
 }
 
@@ -296,34 +296,22 @@
             }
         } // draw actual chart data
         if (self.drawsDataPoints) {
-          if (data.drawsDataPoints) {
-            double xRangeLen = data.xMax - data.xMin;
-            if(xRangeLen == 0) xRangeLen = 1;
-            for(NSUInteger i = 0; i < data.itemCount; ++i) {
-                LCLineChartDataItem *datItem = data.getData(i);
-                CGFloat xVal = xStart + round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
-                CGFloat yVal = yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
-                [self.backgroundColor setFill];
-                CGContextFillEllipseInRect(c, CGRectMake(xVal - 5.5, yVal - 5.5, 11, 11));
-                [data.color setFill];
-                CGContextFillEllipseInRect(c, CGRectMake(xVal - 4, yVal - 4, 8, 8));
-                {
-                    CGFloat brightness;
-                    CGFloat r,g,b,a;
-                    if(CGColorGetNumberOfComponents([data.color CGColor]) < 3)
-                        [data.color getWhite:&brightness alpha:&a];
-                    else {
-                        [data.color getRed:&r green:&g blue:&b alpha:&a];
-                        brightness = 0.299 * r + 0.587 * g + 0.114 * b; // RGB ~> Luma conversion
-                    }
-                    if(brightness <= 0.68) // basically arbitrary, but works well for test cases
-                        [[UIColor whiteColor] setFill];
-                    else
-                        [[UIColor blackColor] setFill];
-                }
-                CGContextFillEllipseInRect(c, CGRectMake(xVal - 2, yVal - 2, 4, 4));
-            } // for
-          } // data - draw data points
+            if (data.drawsDataPoints) {
+                double xRangeLen = data.xMax - data.xMin;
+                if(xRangeLen == 0) xRangeLen = 1;
+                for(NSUInteger i = 0; i < data.itemCount; ++i) {
+                    LCLineChartDataItem *datItem = data.getData(i);
+                    CGFloat xVal = xStart + round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
+                    CGFloat yVal = yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
+                    [self.backgroundColor setFill];
+                    //CGContextFillEllipseInRect(c, CGRectMake(xVal - pointRadius/2, yVal - pointRadius/2, pointRadius, pointRadius));
+                    [data.color setFill];
+
+                    int pointRadius = 6;
+                    CGContextFillEllipseInRect(c, CGRectMake(xVal - pointRadius/2, yVal - pointRadius/2, pointRadius, pointRadius));
+
+                } // for
+            } // data - draw data points
         } // draw data points
     }
 }
@@ -353,7 +341,7 @@
 
     for(LCLineChartData *data in self.data) {
         double xRangeLen = data.xMax - data.xMin;
-        
+
         // note: if necessary, could use binary search here to speed things up
         for(NSUInteger i = 0; i < data.itemCount; ++i) {
             LCLineChartDataItem *datItem = data.getData(i);
@@ -372,13 +360,13 @@
             }
         }
     }
-    
+
     if(closest == nil || (closestData == self.selectedData && closestIdx == self.selectedIdx))
         return;
-    
+
     self.selectedData = closestData;
     self.selectedIdx = closestIdx;
-    
+
     self.infoView.infoLabel.text = closest.dataLabel;
     self.infoView.tapPoint = closestPos;
     [self.infoView sizeToFit];
@@ -408,7 +396,7 @@
             self.xAxisLabel.frame = r;
         }
     }];
-    
+
     if(self.selectedItemCallback != nil) {
         self.selectedItemCallback(closestData, closestIdx, closestPos);
     }
@@ -417,9 +405,9 @@
 - (void)hideIndicator {
     if(self.deselectedItemCallback)
         self.deselectedItemCallback();
-    
+
     self.selectedData = nil;
-    
+
     [UIView animateWithDuration:0.1 animations:^{
         self.infoView.alpha = 0.0;
         self.currentPosView.alpha = 0.0;
