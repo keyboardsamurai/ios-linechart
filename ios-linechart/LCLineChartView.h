@@ -70,6 +70,10 @@ typedef void(^LCLineChartDeselectedItem)();
 
 @property(nonatomic, strong) LCLegendView *legendView;
 
+@property(nonatomic) BOOL drawAxis;
+
+@property(nonatomic) BOOL showIndicator;
+
 - (void)showLegend:(BOOL)show animated:(BOOL)animated;
 
 @end

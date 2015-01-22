@@ -24,10 +24,11 @@
         UIFont *fatFont = [UIFont boldSystemFontOfSize:12];
         
         self.infoLabel = [[UILabel alloc] init]; self.infoLabel.font = fatFont;
-        self.infoLabel.backgroundColor = [UIColor clearColor]; self.infoLabel.textColor = [UIColor whiteColor];
+        self.infoLabel.backgroundColor = [UIColor clearColor];
+        self.infoLabel.textColor = [UIColor blackColor];
         self.infoLabel.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth;
-        self.infoLabel.shadowColor = [UIColor blackColor];
-        self.infoLabel.shadowOffset = CGSizeMake(0, -1);
+        //self.infoLabel.shadowColor = [UIColor whiteColor];
+        //self.infoLabel.shadowOffset = CGSizeMake(0, -1);
         self.infoLabel.textAlignment = NSTextAlignmentCenter;
         [self addSubview:self.infoLabel];
         
@@ -99,8 +100,9 @@ void CGContextAddRoundedRectWithHookSimple(CGContextRef c, CGRect rect, CGFloat 
 	theRect.origin.x += SHADOWSIZE;
 	theRect.size.width -= SHADOWSIZE * 2;
     theRect.size.height -= SHADOWSIZE * 2;
-	
-    [[UIColor colorWithWhite:0.0 alpha:1.0] set];
+
+
+    [[UIColor colorWithWhite:1.0 alpha:1.0] set]; // background color
 	CGContextSetAlpha(c, 0.7);
 
 	CGContextSaveGState(c);
@@ -111,7 +113,7 @@ void CGContextAddRoundedRectWithHookSimple(CGContextRef c, CGRect rect, CGFloat 
     CGContextAddRoundedRectWithHookSimple(c, theRect, 7);
 	CGContextFillPath(c);
 	
-    [[UIColor whiteColor] set];
+    [[UIColor whiteColor] set]; // upper half of speech bubble
 	theRect.origin.x += 1;
 	theRect.origin.y += 1;
 	theRect.size.width -= 2;

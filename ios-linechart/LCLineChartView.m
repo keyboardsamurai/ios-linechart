@@ -74,7 +74,9 @@
 #define PADDING 10
 
 
-@implementation LCLineChartView
+@implementation LCLineChartView {
+    double yAxisOrigin;
+}
 @synthesize data=_data;
 
 - (void)setDefaultValues {
@@ -218,12 +220,23 @@
 #pragma clagn diagnostic pop
 
         [[UIColor colorWithWhite:0.9 alpha:1.0] set];
-        CGContextSetLineDash(c, 0, dashedPattern, 2);
-        CGContextMoveToPoint(c, xStart, round(y) + 0.5);
-        CGContextAddLineToPoint(c, self.bounds.size.width - PADDING, round(y) + 0.5);
-        CGContextStrokePath(c);
+        if(i == 0 && self.drawAxis){
+            // draw only lower horizontal axis line
+            yAxisOrigin = round(y) + 0.5;
+            // NSLog(@"x: %f y: %f",xStart-2,yAxisOrigin);
+            CGContextMoveToPoint(c, xStart, yAxisOrigin);
+            CGContextAddLineToPoint(c, self.bounds.size.width - PADDING, round(y) + 0.5);
+            CGContextStrokePath(c);
+        }
 
         i++;
+    }
+    if(self.drawAxis){
+        // NSLog(@"x: %f y: %f",xStart-2,yAxisOrigin);
+        // draw vertical axis line
+        CGContextMoveToPoint(c, xStart, 0);
+        CGContextAddLineToPoint(c, xStart, yAxisOrigin);
+        CGContextStrokePath(c);
     }
 
     NSUInteger xCnt = self.xStepsCount;
@@ -289,7 +302,7 @@
 
                 CGContextAddPath(c, path);
                 CGContextSetStrokeColorWithColor(c, [data.color CGColor]);
-                CGContextSetLineWidth(c, 2);
+                CGContextSetLineWidth(c, 1);
                 CGContextStrokePath(c);
 
                 CGPathRelease(path);
@@ -311,7 +324,7 @@
                         [data.color setFill];
                     }
 
-                    int pointRadius = 6;
+                    int pointRadius = 4;
                     CGContextFillEllipseInRect(c, CGRectMake(xVal - pointRadius/2, yVal - pointRadius/2, pointRadius, pointRadius));
 
                 } // for
@@ -320,12 +333,15 @@
     }
 }
 
+// TODO draw for CGPoint directly
 - (void)showIndicatorForTouch:(UITouch *)touch {
-    if(! self.infoView) {
+    if(! self.infoView && self.showIndicator) {
         self.infoView = [[LCInfoView alloc] init];
         [self addSubview:self.infoView];
+    }else if(!self.showIndicator){
+        // don't draw info indicators
+        return;
     }
-
     CGPoint pos = [touch locationInView:self];
     CGFloat xStart = PADDING + self.yAxisLabelsWidth;
     CGFloat yStart = PADDING;
