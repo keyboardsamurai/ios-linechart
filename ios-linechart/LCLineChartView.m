@@ -81,7 +81,7 @@
 
 - (void)setDefaultValues {
     self.currentPosView = [[UIView alloc] initWithFrame:CGRectMake(PADDING, PADDING, 1 / self.contentScaleFactor, 50)];
-    self.currentPosView.backgroundColor = [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:1.0];
+    self.currentPosView.backgroundColor = UIColor.clearColor;
     self.currentPosView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
     self.currentPosView.alpha = 0.0;
     [self addSubview:self.currentPosView];
