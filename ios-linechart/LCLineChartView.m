@@ -6,6 +6,8 @@
 //
 //
 
+#import <tgmath.h>
+#import <ios-linechart/LCLineChartView.h>
 #import "LCLineChartView.h"
 #import "LCLegendView.h"
 #import "LCInfoView.h"
@@ -58,7 +60,7 @@
 @interface LCLineChartView ()
 
 
-@property LCInfoView *infoView;
+
 @property UIView *currentPosView;
 @property UILabel *xAxisLabel;
 
@@ -78,6 +80,8 @@
     double yAxisOrigin;
 }
 @synthesize data=_data;
+
+
 
 - (void)setDefaultValues {
     self.currentPosView = [[UIView alloc] initWithFrame:CGRectMake(PADDING, PADDING, 1 / self.contentScaleFactor, 50)];
@@ -117,6 +121,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if((self = [super initWithCoder:aDecoder])) {
         [self setDefaultValues];
+        self.infoViewList = [NSMutableArray new];
     }
     return self;
 }
@@ -124,6 +129,7 @@
 - (id)initWithFrame:(CGRect)frame {
     if((self = [super initWithFrame:frame])) {
         [self setDefaultValues];
+        self.infoViewList = [NSMutableArray new];
     }
     return self;
 }
@@ -170,6 +176,7 @@
 
 - (void)setData:(NSArray *)data {
     if(data != _data) {
+        [self hideIndicator];
         NSMutableArray *titles = [NSMutableArray arrayWithCapacity:[data count]];
         NSMutableDictionary *colors = [NSMutableDictionary dictionaryWithCapacity:[data count]];
         for(LCLineChartData *dat in data) {
@@ -185,6 +192,7 @@
 
         _data = data;
 
+        [self drawAllIndicators];
         [self setNeedsDisplay];
     }
 }
@@ -333,16 +341,18 @@
     }
 }
 
-// TODO draw for CGPoint directly
-- (void)showIndicatorForTouch:(UITouch *)touch {
-    if(! self.infoView && self.showIndicator) {
-        self.infoView = [[LCInfoView alloc] init];
-        [self addSubview:self.infoView];
-    }else if(!self.showIndicator){
+- (void)showIndicatorAtPoint:(CGPoint )cgPoint {
+    if(!self.showIndicator){
         // don't draw info indicators
         return;
     }
-    CGPoint pos = [touch locationInView:self];
+
+    LCInfoView *infoView = [[LCInfoView alloc] init];
+    
+    [self addSubview:infoView];
+    [self.infoViewList addObject:infoView];
+
+    CGPoint pos = cgPoint;
     CGFloat xStart = PADDING + self.yAxisLabelsWidth;
     CGFloat yStart = PADDING;
     CGFloat yRangeLen = self.yMax - self.yMin;
@@ -387,11 +397,11 @@
     self.selectedData = closestData;
     self.selectedIdx = closestIdx;
 
-    self.infoView.infoLabel.text = closest.dataLabel;
-    self.infoView.tapPoint = closestPos;
-    [self.infoView sizeToFit];
-    [self.infoView setNeedsLayout];
-    [self.infoView setNeedsDisplay];
+    infoView.infoLabel.text = closest.dataLabel;
+    infoView.tapPoint = closestPos;
+    [infoView sizeToFit];
+    [infoView setNeedsLayout];
+    [infoView setNeedsDisplay];
 
     if(self.currentPosView.alpha == 0.0) {
         CGRect r = self.currentPosView.frame;
@@ -400,7 +410,7 @@
     }
 
     [UIView animateWithDuration:0.1 animations:^{
-        self.infoView.alpha = 1.0;
+        infoView.alpha = 1.0;
         self.currentPosView.alpha = 1.0;
         self.xAxisLabel.alpha = 1.0;
 
@@ -423,32 +433,50 @@
 }
 
 - (void)hideIndicator {
-    if(self.deselectedItemCallback)
-        self.deselectedItemCallback();
+    for (LCInfoView *infoView in self.infoViewList) {
+        if(self.deselectedItemCallback)
+            self.deselectedItemCallback();
 
-    self.selectedData = nil;
+        self.selectedData = nil;
 
-    [UIView animateWithDuration:0.1 animations:^{
-        self.infoView.alpha = 0.0;
-        self.currentPosView.alpha = 0.0;
-        self.xAxisLabel.alpha = 0.0;
-    }];
+        [UIView animateWithDuration:0.1 animations:^{
+            infoView.alpha = 0.0;
+            self.currentPosView.alpha = 0.0;
+            self.xAxisLabel.alpha = 0.0;
+        }];
+    }
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self showIndicatorForTouch:[touches anyObject]];
-}
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self showIndicatorForTouch:[touches anyObject]];
-}
+- (void)drawAllIndicators {
+    NSUInteger maximumLabels = 13;
+    for(LCLineChartData *data in self.data) {
+        double xRangeLen = data.xMax - data.xMin;
+        NSUInteger labelDistance = (NSUInteger) ceil((float)data.itemCount/(float)maximumLabels);
+        int counter=0;
+        // note: if necessary, could use binary search here to speed things up
+        for (NSUInteger i = 0; i < data.itemCount; ++i) {
+            LCLineChartDataItem *datItem = data.getData(i);
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self hideIndicator];
-}
+            CGFloat availableWidth = self.bounds.size.width - 2 * PADDING - self.yAxisLabelsWidth;
+            CGFloat availableHeight = self.bounds.size.height - 2 * PADDING - X_AXIS_SPACE;
+            CGFloat xVal = round((xRangeLen == 0 ? 0.0 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
+            CGFloat yRangeLen = self.yMax - self.yMin;
+            CGFloat yVal = round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    [self hideIndicator];
+            CGPoint cgPoint = CGPointMake(xVal, yVal);
+            if(data.itemCount <= maximumLabels){
+                // we have less than maximumLabels data items so everyone gets a label
+                [self showIndicatorAtPoint:cgPoint];
+            }else if(labelDistance > 0){
+                NSUInteger mod =  counter % labelDistance;
+                if( mod == 0){
+                    [self showIndicatorAtPoint:cgPoint];
+                }
+            }
+            counter++;
+        }
+    }
 }
 
 

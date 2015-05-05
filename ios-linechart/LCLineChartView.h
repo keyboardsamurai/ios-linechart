@@ -74,6 +74,9 @@ typedef void(^LCLineChartDeselectedItem)();
 
 @property(nonatomic) BOOL showIndicator;
 
+@property(nonatomic, strong) NSMutableArray *infoViewList;
+
 - (void)showLegend:(BOOL)show animated:(BOOL)animated;
 
+- (void)hideIndicator;
 @end
