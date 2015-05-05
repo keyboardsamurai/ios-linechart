@@ -470,7 +470,8 @@
                 [self showIndicatorAtPoint:cgPoint];
             }else if(labelDistance > 0){
                 NSUInteger mod =  counter % labelDistance;
-                if( mod == 0){
+                if(counter !=0  // keeps first label from overlapping
+                        && mod == 0){
                     [self showIndicatorAtPoint:cgPoint];
                 }
             }
